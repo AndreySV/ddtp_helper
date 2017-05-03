@@ -78,18 +78,23 @@ get_untraslated_desc()
 
 get_popcon_list()
 {
-    echo "--------------------------------------------------------"
-    echo " Receiving popcon list"
-    echo " This may take some time..."
-    echo "--------------------------------------------------------"
+    # update only once a week
+    local update_interval_s=$((7*60*60*24))
+    local update=$(need_to_update_file $POPCON_FILE $update_interval_s)
 
+    if [ $update -ne 0 ]; then
+        echo "--------------------------------------------------------"
+        echo " Receiving popcon list"
+        echo " This may take some time..."
+        echo "--------------------------------------------------------"
 
-    local POPCON_LINK=http://popcon.debian.org/by_vote.gz
-    # POPCON_LINK=http://popcon.debian.org/by_inst.gz
-    wget -O - $POPCON_LINK | \
-        gunzip | \
-        grep  '(.*)\s*$'  | \
-        awk '{ print $2 }' > $POPCON_FILE
+        local POPCON_LINK=http://popcon.debian.org/by_vote.gz
+        # POPCON_LINK=http://popcon.debian.org/by_inst.gz
+        wget -O - $POPCON_LINK | \
+            gunzip | \
+            grep  '(.*)\s*$'  | \
+            awk '{ print $2 }' > $POPCON_FILE
+    fi
 }
 
 
@@ -110,9 +115,7 @@ get_reviewed_desc()
 get_sorted_untranslated_desc()
 {
     get_untraslated_desc
-    if [ ! -e $POPCON_FILE ]; then
-        get_popcon_list
-    fi
+    get_popcon_list
     get_reviewed_desc
 
     grep -F -x -f $UNTRANSLATED_FILE $POPCON_FILE | \
