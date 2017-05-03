@@ -1,0 +1,8 @@
+Script generates list of untranslated package descriptions for
+DDTP (Debian description translation project) sorted by popcon
+rank (popcon.debian.org).
+The list is saved in file sorted_untranslated_desc.LANGUAGE.txt.
+First package is the mostly used.
+
+For example, for Russian 
+./get_untranslated_descriptions.sh ru
