@@ -35,23 +35,31 @@ set_env()
 }
 
 
-get_untraslated_desc()
+need_to_update_file()
 {
+    local file=$1
+    local update_interval_s=$2
     local update=0
-
     if [ ! -e  $UNTRANSLATED_FILE ]; then
         update=1
     else
-        # update only once a day
         local now=$(date --date=$(date --iso-8601) +%s 2>/dev/null)
-        local prev=$(date --date=$(date -r $UNTRANSLATED_FILE --iso-8601) +%s 2>/dev/null)
+        local prev=$(date --date=$(date -r $file --iso-8601) +%s 2>/dev/null)
         local delta_s=$(($now-$prev))
-        local update_interval_s=$((1*60*60*24))
+
 
         if [ $delta_s -ge $update_interval_s ]; then
             update=1
         fi
     fi
+    echo $update
+}
+
+get_untraslated_desc()
+{
+    # update only once a day
+    local update_interval_s=$((1*60*60*24))
+    local update=$(need_to_update_file $UNTRANSLATED_FILE $update_interval_s)
 
     if [ $update -ne 0 ]; then
         echo "--------------------------------------------------------"
